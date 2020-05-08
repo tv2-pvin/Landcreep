@@ -1,5 +1,5 @@
 on: push
-name: Check
+name: Check & Release
 jobs:
   lint:
     runs-on: ubuntu-latest

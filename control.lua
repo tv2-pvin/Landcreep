@@ -1,10 +1,3 @@
-local function isWaterTile(tile)
-	if search(tile, "draw_in_water_layer") then
-		return tile.draw_in_water_layer.value
-	else
-		return false
-	end
-end
 
 local function search(master, target)
     for k,v in next, master do
@@ -13,6 +6,13 @@ local function search(master, target)
 	return false
 end
 
+local function isWaterTile(tile)
+	if search(tile, "draw_in_water_layer") then
+		return tile.draw_in_water_layer.value
+	else
+		return false
+	end
+end
 
 local function landfill()
 	local constructionFactor = settings.global["landcreep_construction_factor"].value
