@@ -16,12 +16,5 @@ data:extend({
         minimum_value = 1,
         maximum_value = 100,
         order = "02"
-    },
-    {
-        type = "bool-setting",
-        name = "landcreep_ignore_placed_tiles",
-        setting_type = "runtime-global",
-        default_value = true,
-		order = "03"
     }
 })
