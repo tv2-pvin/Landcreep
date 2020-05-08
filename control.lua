@@ -26,7 +26,7 @@ function checkRoboports()
 						return false
 					end
 					if roboport.logistic_network.available_construction_robots > 0 then
-						local constructionFactor = settings.global["concreep construction factor"].value
+						local constructionFactor = settings.global["landcreep_construction_factor"].value
 						amount = math.max(math.floor(roboport.logistic_network.available_construction_robots / constructionFactor), 1)						
 						--game.print("Total Construction Robots / ".. constructionFactor .. ": " .. amount)
 						if creep(global.index, amount) then
@@ -59,17 +59,18 @@ function creep(index, amount)
 	local roboport = creeper.roboport
 	local radius = creeper.radius
 	local count = 0
-	--if roboport.logistic_network.get_item_count("concrete") > 0 then
+	--if roboport.logistic_network.get_item_count("landfill") > 0 then
 		-- local rando = math.random(-radius, radius) -- Pick a random point along the circumference.
 		-- Need to offset up and left as +radius is outside of the actual radius.
 		for xx = -radius, radius-1, 1 do
 			for yy = -radius, radius-1, 1 do
 				if xx <= -radius+1 or xx >= radius-2 or yy <= -radius+1 or yy >= radius-2 then --Check only the outer ring, width 2.
 					local tile = roboport.surface.get_tile(roboport.position.x + xx, roboport.position.y + yy)
-					--Skip already built tiles.
-					--if not (settings.global["ignore placed tiles"].value and not tile.hidden_tile) or not string.find(tile.name, "concrete") then 
-					if not tile.hidden_tile or (not string.find(tile.name, "concrete") and not settings.global["ignore placed tiles"].value and not string.find(tile.name, "refined-concrete")) then
-					--if not (string.find(tile.name, "concrete") or tile.name == "stone-path" or string.find(tile.name, "dect-")) then
+					local walking_speed_modifier = pcall(getWalkingSpeedModifier(tile))
+					game.print(serpent.line(walking_speed_modifier))
+					game.print("is not hidden tile " .. tostring(not tile.hidden_tile))
+					game.print("is not landfill " .. tostring(not string.find(tile.name, "landfill")))
+					if not tile.hidden_tile or (not string.find(tile.name, "landfill") and not getWalkingSpeedModifier(tile) > 1.0) then
 						local ghost = creeper.pattern[(xx-2) % 4][(yy-2) % 4]
 						local it = creeper.item[(xx-2) % 4][(yy-2) % 4]
 						local area = {{roboport.position.x + xx-0.2,  roboport.position.y + yy-0.2},{roboport.position.x + xx+0.8,  roboport.position.y + yy + 0.8}}
@@ -80,7 +81,6 @@ function creep(index, amount)
 									for i, tree in pairs(roboport.surface.find_entities_filtered{type = "tree", area=area}) do
 										tree.order_deconstruction(roboport.force)
 									end
-									--for i, rock in pairs(roboport.surface.find_entities_filtered{name = "stone-rock", area=area}) do
 									for i, rock in pairs(roboport.surface.find_entities_filtered{type = "simple-entity", area=area}) do
 										rock.order_deconstruction(roboport.force)
 									end
@@ -102,7 +102,7 @@ function creep(index, amount)
 								end
 							end
 						else
-							log("Concreep: Error!  Concreep Pattern invalid.")
+							log("Landcreep: Error!  Landcreep Pattern invalid.")
 							--game.print("Tile: " .. serpent.line(ghost) .. " and item: " .. serpent.line(it))
 						end
 						if count >= amount then
@@ -116,7 +116,7 @@ function creep(index, amount)
 		if count == 0 then
 			creeper.radius = creeper.radius + 1
 			local cell = roboport.logistic_cell
-			if cell and cell.valid and creeper.radius > (cell.construction_radius * settings.global["concreep range"].value / 100) then
+			if cell and cell.valid and creeper.radius > (cell.construction_radius * settings.global["landcreep_range"].value / 100) then
 				--Turn recheck mode on.  If recheck mode is already on, turn creeper off.
 				if creeper.recheck then
 					table.remove(global.creepers, index)
@@ -154,14 +154,14 @@ function addPort(robo)
 	it[xx+2] = {}
 		for yy = -2, 1, 1 do		
 			local tile = surface.get_tile(robo.position.x + xx, robo.position.y + yy)
-			if string.find(tile.name, "refined-concrete") or string.find(tile.name, "dect-") then
+			if string.find(tile.name, "landfill") or string.find(tile.name, "dect-") then
 				local items = tile.prototype.items_to_place_this
 				it[xx+2][yy+2] = next(items, nil)
 				patt[xx+2][yy+2] = tile.name
 				--game.print(serpent.line(items))
 			else
-				patt[xx+2][yy+2] = "refined-concrete"
-				it[xx+2][yy+2] = "refined-concrete"
+				patt[xx+2][yy+2] = "landfill"
+				patt[xx+2][yy+2] = "landfill"
 			end
 		end
 	end
@@ -201,4 +201,12 @@ function tablelength(T)
 	local count = 0
 	for _ in pairs(T) do count = count + 1 end
 	return count
+end
+
+function getWalkingSpeedModifier(tile)
+	if tile.walking_speed_modifier then
+		return tile.walking_speed_modifier
+	else
+		return 0
+	end
 end

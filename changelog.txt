@@ -1,30 +1,5 @@
 ---------------------------------------------------------------------------------------------------
-Version: 2.18.0
-Date: 3. 02. 2020
-  Bug Fixes:
-    - Version update to .18
----------------------------------------------------------------------------------------------------
-Version: 2.0.0
-Date: 24. 09. 2018
-  Features:
-    - Concreep now prioritizes refined concrete
-	- Concreep can have scaled limits to how much it can tax the robot network
-  Behavior:
-    - Cycles every 30 seconds instead of every 15 units (.25 seconds)
-  Bug Fixes:
-    - Works with multiple surfaces
----------------------------------------------------------------------------------------------------
-Version: 1.2.0
-Date: 28. 12. 2017
-  Features:
-    - Concreep now autoremoves cliffs as concrete is laid down.  Right now it auto-deducts the cliff-explosives from the logistic network instead of delivering it via bot.  Hoping to change this in the future.
-  Note:
-    - A roboport may fail to remove cliffs if insufficient cliff-explosives are available and it can be stuck in a state where it won't check again.
----------------------------------------------------------------------------------------------------
-Version: 1.1.0
-Date: 15. 12. 2017
-  Features:
-    - Updated for 0.16
-	- Added option to scale back the range roboports will build concrete.
-	- Added option to ignore already built tiles (Brick, asphault, etc)
+Version: 0.0.1
+Date: 2020-05-08
+  Initial version: forked from  Concreep: https://github.com/CRGorman/Concreep
 ---------------------------------------------------------------------------------------------------

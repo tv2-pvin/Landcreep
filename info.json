@@ -1,11 +1,11 @@
 {
-  "name": "ConcreepRefined",
-  "version": "2.18.0",
-  "title": "Concreep Refined",
-  "author": "Zero Serenity",
+  "name": "Landcreep",
+  "version": "0.0.1",
+  "title": "Landcreep",
+  "author": "Jelztin",
   "contact": "",
-  "homepage": "https://github.com/CRGorman/Concreep",
-  "description": "Roboports automatically place refined concrete within their reach.",
+  "homepage": "https://github.com/tv2-pvin/Landcreep",
+  "description": "Roboports automatically place landfill within their reach.",
   "factorio_version": "0.18",
   "dependencies": ["base >= 0.18.00"]
 }
