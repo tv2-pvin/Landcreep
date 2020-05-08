@@ -1,4 +1,20 @@
-function landfill() 
+local function isWaterTile(tile)
+	if search(tile, "draw_in_water_layer") then
+		return tile.draw_in_water_layer.value
+	else
+		return false
+	end
+end
+
+local function search(master, target)
+    for k,v in next, master do
+        if type(v)=="table" and v[target] then return true end
+	end
+	return false
+end
+
+
+local function landfill()
 	local constructionFactor = settings.global["landcreep_construction_factor"].value
 	local amount = 1
 	local numberOfBotsSent = 1
@@ -51,18 +67,3 @@ script.on_nth_tick(600, function(event)
 		retries = retries + 1
 	end	
 end)
-
-function isWaterTile(tile)
-	if search(tile, "draw_in_water_layer") then
-		return tile.draw_in_water_layer.value
-	else
-		return false
-	end
-end
-
-function search(master, target)
-    for k,v in next, master do
-        if type(v)=="table" and v[target] then return true end
-	end
-	return false
-end
