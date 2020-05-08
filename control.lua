@@ -1,3 +1,34 @@
+local function addRoboport(roboport, checked)
+	if global.roboports then 
+		global.roboports[tostring(roboport.position.x) .. tostring(roboport.position.y)] = {port=roboport, x=roboport.position.x, y=roboport.position.y, radius=roboport.logistic_cell.construction_radius * settings.global["landcreep_range"].value / 100, checked=checked}
+	else
+		global.roboports = {}
+		global.roboports[tostring(roboport.position.x) .. tostring(roboport.position.y)] = {port=roboport, x=roboport.position.x, y=roboport.position.y, radius=roboport.logistic_cell.construction_radius * settings.global["landcreep_range"].value / 100, checked=checked}
+	end
+end
+
+local function removeRoboport(roboport)
+	if global.roboports then 
+		global.roboports[tostring(roboport.position.x) .. tostring(roboport.position.y)] = nil
+	else
+		global.roboports = {}
+	end
+end
+
+local function init()
+	global.roboports = global.roboports or {}
+	for _, surface in pairs(game.surfaces) do
+		for _, roboport in pairs(surface.find_entities_filtered{type="roboport"}) do
+			addRoboport(roboport, false)
+		end
+	end
+end
+
+local function tablelength(T)
+	local count = 0
+	for _,_ in pairs(T) do count = count + 1 end
+	return count
+end
 
 local function search(master, target)
     for k,v in next, master do
@@ -14,39 +45,53 @@ local function isWaterTile(tile)
 	end
 end
 
+local function checkRoboports()
+	for index, roboport in pairs(global.roboports) do 
+		if roboport and roboport.port and roboport.port.valid then 
+			if roboport.port.logistic_cell.construction_radius == 0 then
+				removeRoboport(roboport.port)
+			end
+		else
+			removeRoboport(roboport.port)
+		end
+	end
+
+	if not global.roboports or #global.roboports < 1 then
+		game.print("had zero prts - reinit")
+		init()
+	end
+end
+
 local function landfill()
+	init()
+	checkRoboports()
 	local constructionFactor = settings.global["landcreep_construction_factor"].value
 	local range = settings.global["landcreep_range"].value
-
-	for _, surface in pairs(game.surfaces) do
-		for _, roboport in pairs(surface.find_entities_filtered{type="roboport"}) do
-			if roboport.logistic_network and roboport.logistic_network.valid and roboport.logistic_cell and roboport.logistic_cell.valid then
-				local amount = math.max(math.floor(roboport.logistic_network.available_construction_robots / constructionFactor), 1)
-				local numberOfBotsSent = 0
-				local radius = roboport.logistic_cell.construction_radius * range / 100
-				for xx = -radius, radius, 1 do
-					for yy = -radius, radius, 1 do
-						game.print("amount " .. tostring(amount) .. " numberOfBotsSent " .. tostring(numberOfBotsSent))
-						if numberOfBotsSent < amount then 
-							local tile = roboport.surface.get_tile(roboport.position.x + xx, roboport.position.y + yy)
-							game.print(serpent.dump(tile))
-							game.print(isWaterTile(tile))
-							if not isWaterTile(tile) then
-								if roboport.surface.can_place_entity{name="tile-ghost", position={tile.position.x, tile.position.y}, inner_name="landfill", force=roboport.force} then
-									roboport.surface.create_entity{name="tile-ghost", position={tile.position.x, tile.position.y}, inner_name="landfill", force=roboport.force, expires=false}
-									numberOfBotsSent = numberOfBotsSent + 1
-									local area = {{roboport.position.x + xx-0.2,  roboport.position.y + yy-0.2},{roboport.position.x + xx+0.8,  roboport.position.y + yy + 0.8}}
-									for i, tree in pairs(roboport.surface.find_entities_filtered{type = "tree", area=area}) do
-										tree.order_deconstruction(roboport.force)
-									end
-									for i, rock in pairs(roboport.surface.find_entities_filtered{type = "simple-entity", area=area}) do
-										rock.order_deconstruction(roboport.force)
-									end
-									for i, cliff in pairs(roboport.surface.find_entities_filtered{type = "cliff", limit=1, area=area}) do
-										if roboport.logistic_network.get_item_count("cliff-explosives") > 0 then
-											cliff.destroy()
-											roboport.logistic_network.remove_item({name="cliff-explosives", 1})
-										end
+	for index, roboport in pairs(global.roboports) do
+		local port = roboport.port
+		if not roboport.checked and port.logistic_network and port.logistic_network.valid and port.logistic_cell and port.logistic_cell.valid then
+			local amount = math.max(math.floor(port.logistic_network.available_construction_robots / constructionFactor), 1)
+			local numberOfBotsSent = 0
+			local radius = roboport.radius
+			for xx = -radius, radius-1, 1 do
+				for yy = -radius, radius-1, 1 do
+					if numberOfBotsSent < amount then 
+						local tile = port.surface.get_tile(roboport.x + xx, roboport.y + yy)
+						if not isWaterTile(tile) then
+							if port.surface.can_place_entity{name="tile-ghost", position={tile.position.x, tile.position.y}, inner_name="landfill", force=port.force} then
+								port.surface.create_entity{name="tile-ghost", position={tile.position.x, tile.position.y}, inner_name="landfill", force=port.force, expires=false}
+								numberOfBotsSent = numberOfBotsSent + 1
+								local area = {{roboport.x + xx-0.2, roboport.y + yy-0.2},{roboport.x + xx+0.8, roboport.y + yy + 0.8}}
+								for i, tree in pairs(port.surface.find_entities_filtered{type = "tree", area=area}) do
+									tree.order_deconstruction(port.force)
+								end
+								for i, rock in pairs(port.surface.find_entities_filtered{type = "simple-entity", area=area}) do
+									rock.order_deconstruction(port.force)
+								end
+								for i, cliff in pairs(port.surface.find_entities_filtered{type = "cliff", limit=1, area=area}) do
+									if port.logistic_network.get_item_count("cliff-explosives") > 0 then
+										cliff.destroy()
+										port.logistic_network.remove_item({name="cliff-explosives", 1})
 									end
 								end
 							end
@@ -54,15 +99,18 @@ local function landfill()
 					end
 				end
 			end
+			if numberOfBotsSent < amount then
+				removeRoboport(port)
+				addRoboport(port, true)
+			end
+		else
+			removeRoboport(port)
 		end
 	end
 	return true
 end
 
 script.on_nth_tick(600, function()
-	local retries = 0
-	while (not landfill()) and retries < 10 do
-		game.print("landfill running again")
-		retries = retries + 1
-	end
+	landfill()
 end)
+
