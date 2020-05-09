@@ -25,14 +25,14 @@ local function init()
 end
 
 local function search(master, target)
-    for k,v in next, master do
+    for _,v in next, master do
         if type(v)=="table" and v[target] then return true end
 	end
 	return false
 end
 
 local function isWaterTile(tile)
-	if search(tile, "available_water") then
+	if search(tile, "available_water") then -- repalces concrete and stone etc. atm
 		return tile.available_water
 	else
 		return false
@@ -40,7 +40,7 @@ local function isWaterTile(tile)
 end
 
 local function checkRoboports()
-	for index, roboport in pairs(global.roboports) do
+	for _, roboport in pairs(global.roboports) do
 		if roboport and roboport.port and roboport.port.valid then
 			if roboport.port.logistic_cell.construction_radius == 0 then
 				removeRoboport(roboport.port)
@@ -59,9 +59,9 @@ local function landfill()
 	init()
 	checkRoboports()
 	local constructionFactor = settings.global["landcreep_construction_factor"].value
-	for index, roboport in pairs(global.roboports) do
+	for _, roboport in pairs(global.roboports) do
 		local port = roboport.port
-		if not roboport.checked and port.logistic_network and port.logistic_network.valid and port.logistic_cell and port.logistic_cell.valid then
+		if not roboport.checked and port.logistic_network and port.logistic_network.valid and port.logistic_cell and port.logistic_cell.valid and port.logistic_network.get_item_count("landfill") > 0 then
 			local amount = math.max(math.floor(port.logistic_network.available_construction_robots / constructionFactor), 1)
 			local numberOfBotsSent = 0
 			local radius = roboport.radius
@@ -74,13 +74,13 @@ local function landfill()
 								port.surface.create_entity{name="tile-ghost", position={tile.position.x, tile.position.y}, inner_name="landfill", force=port.force, expires=false}
 								numberOfBotsSent = numberOfBotsSent + 1
 								local area = {{roboport.x + xx-0.2, roboport.y + yy-0.2},{roboport.x + xx+0.8, roboport.y + yy + 0.8}}
-								for i, tree in pairs(port.surface.find_entities_filtered{type = "tree", area=area}) do
+								for _, tree in pairs(port.surface.find_entities_filtered{type = "tree", area=area}) do
 									tree.order_deconstruction(port.force)
 								end
-								for i, rock in pairs(port.surface.find_entities_filtered{type = "simple-entity", area=area}) do
+								for _, rock in pairs(port.surface.find_entities_filtered{type = "simple-entity", area=area}) do
 									rock.order_deconstruction(port.force)
 								end
-								for i, cliff in pairs(port.surface.find_entities_filtered{type = "cliff", limit=1, area=area}) do
+								for _, cliff in pairs(port.surface.find_entities_filtered{type = "cliff", limit=1, area=area}) do
 									if port.logistic_network.get_item_count("cliff-explosives") > 0 then
 										cliff.destroy()
 										port.logistic_network.remove_item({name="cliff-explosives", 1})
