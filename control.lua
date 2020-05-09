@@ -1,5 +1,5 @@
 local function addRoboport(roboport, checked)
-	if global.roboports then 
+	if global.roboports then
 		global.roboports[tostring(roboport.position.x) .. tostring(roboport.position.y)] = {port=roboport, x=roboport.position.x, y=roboport.position.y, radius=roboport.logistic_cell.construction_radius * settings.global["landcreep_range"].value / 100, checked=checked}
 	else
 		global.roboports = {}
@@ -8,7 +8,7 @@ local function addRoboport(roboport, checked)
 end
 
 local function removeRoboport(roboport)
-	if global.roboports then 
+	if global.roboports then
 		global.roboports[tostring(roboport.position.x) .. tostring(roboport.position.y)] = nil
 	else
 		global.roboports = {}
@@ -22,12 +22,6 @@ local function init()
 			addRoboport(roboport, false)
 		end
 	end
-end
-
-local function tablelength(T)
-	local count = 0
-	for _,_ in pairs(T) do count = count + 1 end
-	return count
 end
 
 local function search(master, target)
@@ -46,8 +40,8 @@ local function isWaterTile(tile)
 end
 
 local function checkRoboports()
-	for index, roboport in pairs(global.roboports) do 
-		if roboport and roboport.port and roboport.port.valid then 
+	for index, roboport in pairs(global.roboports) do
+		if roboport and roboport.port and roboport.port.valid then
 			if roboport.port.logistic_cell.construction_radius == 0 then
 				removeRoboport(roboport.port)
 			end
@@ -66,7 +60,6 @@ local function landfill()
 	init()
 	checkRoboports()
 	local constructionFactor = settings.global["landcreep_construction_factor"].value
-	local range = settings.global["landcreep_range"].value
 	for index, roboport in pairs(global.roboports) do
 		local port = roboport.port
 		if not roboport.checked and port.logistic_network and port.logistic_network.valid and port.logistic_cell and port.logistic_cell.valid then
@@ -75,7 +68,7 @@ local function landfill()
 			local radius = roboport.radius
 			for xx = -radius, radius-1, 1 do
 				for yy = -radius, radius-1, 1 do
-					if numberOfBotsSent < amount then 
+					if numberOfBotsSent < amount then
 						local tile = port.surface.get_tile(roboport.x + xx, roboport.y + yy)
 						if not isWaterTile(tile) then
 							if port.surface.can_place_entity{name="tile-ghost", position={tile.position.x, tile.position.y}, inner_name="landfill", force=port.force} then
@@ -113,4 +106,3 @@ end
 script.on_nth_tick(600, function()
 	landfill()
 end)
-
