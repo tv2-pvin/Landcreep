@@ -51,7 +51,6 @@ local function checkRoboports()
 	end
 
 	if not global.roboports or #global.roboports < 1 then
-		game.print("had zero prts - reinit")
 		init()
 	end
 end
