@@ -1,3 +1,8 @@
+Version: 1.1.0
+Date: 2020.05.10
+  Info:
+    - completely changed direction only checks on roboport placed or game init or config changed
+---------------------------------------------------------------------------------------------------
 Version: 1.0.1
 Date: 2020.05.10
   Info:
