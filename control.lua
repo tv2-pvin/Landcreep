@@ -111,7 +111,7 @@ local function getAmountOfRobotsToSend(roboport)
 	if maxSetting == 0 then
 		return math.min(math.max(math.floor(roboport.logistic_network.available_construction_robots / constructionFactor), 1), roboport.logistic_network.get_item_count(global.landcreepers_tile))
 	else
-		return math.min(maxSetting, math.min(math.max(math.floor(port.logistic_network.available_construction_robots / constructionFactor), 1), port.logistic_network.get_item_count(global.landcreepers_tile)))
+		return math.min(maxSetting, math.min(math.max(math.floor(roboport.logistic_network.available_construction_robots / constructionFactor), 1), roboport.logistic_network.get_item_count(global.landcreepers_tile)))
 	end
 end
 
