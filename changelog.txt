@@ -1,21 +1,26 @@
 Version: 1.0.0
-Date: 2020-05-09
-  Intitial release
+Date: 2020.05.10
+  Info:
+    - Intitial release
 ---------------------------------------------------------------------------------------------------
 Version: 0.1.2
-Date: 2020-05-09
-  true spiral loop was too iefficient changing to normal loop
+Date: 2020.05.09
+  Optimisations:
+    - true spiral loop was too iefficient changing to normal loop
 ---------------------------------------------------------------------------------------------------
 Version: 0.1.1
-Date: 2020-05-09
-  Changes to the way the mod detects water
+Date: 2020.05.09
+  Optimisations:
+    - Changes to the way the mod detects water
 ---------------------------------------------------------------------------------------------------
 Version: 0.1.0
-Date: 2020-05-09
-  Cleaned up code base
-  Performance is still not acceptable
+Date: 2020.05.09
+  Optimisations:
+    - Cleaned up code base
+    - Performance is still not acceptable
 ---------------------------------------------------------------------------------------------------
 Version: 0.0.1
-Date: 2020-05-08
-  Initial version: forked from  Concreep: https://github.com/CRGorman/Concreep
+Date: 2020.05.08
+  Info:
+    - Initial version: forked from  Concreep: https://github.com/CRGorman/Concreep
 ---------------------------------------------------------------------------------------------------
