@@ -1,3 +1,9 @@
+Version: 1.2.0
+Date: 2020.05.10
+  Changes:
+    - Only iterate 1 roboport at a time on run
+    - added settings for usability
+---------------------------------------------------------------------------------------------------
 Version: 1.1.0
 Date: 2020.05.10
   Info:
