@@ -2,18 +2,12 @@ script.on_init(function()
 	global.landcreepers_has_run = false
 end)
 
-local function initSettings()
-	global.landcreepers_roboport_index = 1
-	global.landcreepers_tile = settings.global['landcreep_tile_override'].value or "landfill"
-	global.landcreepers_only_place_if_landfill_available = settings.global['landcreepers_only_place_if_landfill_available'].value or true
-	global.landcreepers_only_place_if_robots_available = settings.global['landcreepers_only_place_if_robots_available'].value or true
-	global.landcreepers_lto_roboport = settings.global['landcreepers_iterate_less_than_one_roboport'].value or true
-	global.landcreepers_lto_roboport_cols = settings.global['landcreepers_iterate_less_than_one_roboport_number_of_columns'].value or 5
+local function readSetting(key, defaultValue)
+	if settings.global[key] ~= nil then
+		return settings.global[key].value
+	end
+	return defaultValue
 end
-
-script.on_configuration_changed(function()
-	initSettings()
-end)
 
 local function addToSet(set, key)
     set[key] = true
@@ -54,8 +48,9 @@ local function initWaterTiles()
 end
 
 local function placeLandfill(roboport, tile)
-	if roboport.surface.can_place_entity{name="tile-ghost", position={tile.position.x, tile.position.y}, inner_name=global.landcreepers_tile, force=roboport.force} then
-		roboport.surface.create_entity{name="tile-ghost", position={tile.position.x, tile.position.y}, inner_name=global.landcreepers_tile, force=roboport.force, expires=false}
+	local tile_name = readSetting("landcreep_tile_override", "landfill")
+	if roboport.surface.can_place_entity{name="tile-ghost", position={tile.position.x, tile.position.y}, inner_name=tile_name, force=roboport.force} then
+		roboport.surface.create_entity{name="tile-ghost", position={tile.position.x, tile.position.y}, inner_name=tile_name, force=roboport.force, expires=false}
 		return 1
 	end
 	return 0
@@ -66,7 +61,7 @@ local function hasValidLogisticsNetwork(roboport)
 end
 
 local function hasItem(roboport)
-	return hasValidLogisticsNetwork(roboport) and roboport.logistic_network.get_item_count(global.landcreepers_tile) > 0
+	return hasValidLogisticsNetwork(roboport) and roboport.logistic_network.get_item_count(readSetting("landcreep_tile_override", "landfill")) > 0
 end
 
 local function hasRobots(roboport)
@@ -79,15 +74,17 @@ local function landcreep(roboport)
 		local xStart = -radius
 		local xStop = radius-1
 		local x = 0
-		if global.landcreepers_lto_roboport then
+		if readSetting("landcreepers_iterate_less_than_one_roboport", true) then
 			xStart = global.landcreepers_roboport_index_x or xStart
-			xStop = math.min(xStart + global.landcreepers_lto_roboport_cols, radius-1)
+			xStop = math.min(xStart + readSetting("landcreepers_iterate_less_than_one_roboport_number_of_columns", 5), radius-1)
 		end
+		local only_tile_avail = readSetting("landcreepers_only_place_if_landfill_available", true)
+		local only_robots_avail = readSetting("landcreepers_only_place_if_robots_available", true)
 		for xx = xStart, xStop, 1 do
 			for yy = -radius, radius-1, 1 do
 				local tile = roboport.surface.get_tile(roboport.position.x + xx, roboport.position.y + yy)
-				if global.landcreepers_only_place_if_landfill_available then
-					if global.landcreepers_only_place_if_robots_available then
+				if only_tile_avail then
+					if only_robots_avail then
 						if hasItem(roboport) and hasRobots(roboport) then
 							placeLandfill(roboport, tile)
 						end
@@ -97,7 +94,7 @@ local function landcreep(roboport)
 						end
 					end
 				else
-					if global.landcreepers_only_place_if_robots_available then
+					if only_robots_avail then
 						if hasRobots(roboport) then
 							placeLandfill(roboport, tile)
 						end
@@ -133,8 +130,8 @@ script.on_nth_tick(600, function()
 				table.insert(global.landcreepers_roboports, roboport)
 			end
 		end
-		initSettings()
 		initWaterTiles()
+		global.landcreepers_roboport_index = 1
 		global.landcreepers_has_run = true
 	end
 
