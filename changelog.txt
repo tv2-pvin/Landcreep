@@ -1,7 +1,10 @@
 ---------------------------------------------------------------------------------------------------
 Version: 1.2.5
-Date: ????
+Date: 2020-06-24
   Changes:
+    - Removed some settings due to performance reasons
+    - Improved performance drasctically
+    - Changed default fill behaviour to circular fill - purely astetic - setting for toggle.
 ---------------------------------------------------------------------------------------------------
 Version: 1.2.4
 Date: 2020-05-18
