@@ -12,5 +12,12 @@ data:extend({
     setting_type = "runtime-global",
     default_value = true,
     order = "02"
+  },
+  {
+    type = "int-setting",
+    name = "landcreepers_max_tiles_per_iteration",
+    setting_type = "runtime-global",
+    default_value = 100,
+    order = "03"
   }
 })
