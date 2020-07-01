@@ -7,6 +7,9 @@ local function placeTile(surface, tile, roboport, tileName)
 end
 
 local function landcreep(roboport)
+	if roboport == nil or not roboport.valid then
+		return
+	end
 	local surface = roboport.surface
 	local tileName = settings.global["landcreep_tile_override"].value or "landfill"
 	local circular = settings.global["landcreepers_circular_creep"].value or true
