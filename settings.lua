@@ -10,7 +10,7 @@ data:extend({
     type = "bool-setting",
     name = "landcreepers_circular_creep",
     setting_type = "runtime-global",
-    default_value = true,
+    default_value = false,
     order = "02"
   },
   {
